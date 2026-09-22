@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>行政事業名ジェネレーター</title>
+<style>
+  :root{
+    --bg:#f6f8fc;
+    --ink:#17325c;
+    --muted:#6b7890;
+    --card:#ffffff;
+    --blue:#4f8cff;
+    --green:#37b58c;
+    --orange:#ff9f43;
+    --pink:#ff5f92;
+    --line:#dfe7f3;
+    --shadow:0 12px 32px rgba(39,72,126,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 10%, #dff3ff 0 13%, transparent 14%),
+      radial-gradient(circle at 90% 15%, #fff0c8 0 10%, transparent 11%),
+      linear-gradient(180deg,#eef7ff 0,#f7f9fc 46%,#f8f6fb 100%);
+    font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:auto;padding:28px 20px 48px}
+  .hero{
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#dff2ff,#fff7c9 58%,#ffe1ee);
+    border:1px solid #d9e8f6; border-radius:28px;
+    padding:28px 28px 24px; box-shadow:var(--shadow);
+  }
+  .hero:after{
+    content:""; position:absolute; inset:auto -80px -110px auto;
+    width:300px;height:300px;border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+  .eyebrow{font-weight:800;letter-spacing:.12em;font-size:13px;color:#3977c8}
+  h1{font-size:clamp(32px,6vw,66px);line-height:1;margin:10px 0 10px;letter-spacing:-.04em}
+  .sub{font-size:16px;color:#47617f;margin:0;max-width:720px;line-height:1.8}
+  .chick{
+    position:absolute; right:34px; top:24px; z-index:2;
+    display:flex; align-items:center; gap:12px;
+  }
+  .chick-face{
+    width:82px;height:82px;border-radius:50%;
+    display:grid;place-items:center;font-size:52px;
+    background:#fff7ad;border:4px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.12)
+  }
+  .bubble{
+    max-width:210px;background:#fff;border:2px solid #d8e5f4;border-radius:18px;
+    padding:10px 12px;font-size:13px;font-weight:700;line-height:1.5;
+  }
+
+  .result{
+    margin-top:18px;background:rgba(255,255,255,.96);
+    border:2px solid #cfe0f3;border-radius:24px;padding:22px;
+    display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;
+  }
+  .result small{display:block;color:var(--green);font-weight:900;font-size:14px;margin-bottom:8px}
+  #name{
+    font-size:clamp(25px,4vw,44px);font-weight:900;letter-spacing:.01em;
+    line-height:1.35;word-break:keep-all;
+  }
+  .copy{
+    border:0;background:#edf4ff;color:#2d67b7;font-weight:800;
+    padding:14px 16px;border-radius:14px;cursor:pointer;
+  }
+  .copy:hover{filter:brightness(.98)}
+  .mainbtn{
+    width:min(520px,100%);display:block;margin:18px auto 0;
+    border:0;border-radius:18px;padding:17px 24px;font-size:24px;font-weight:900;
+    color:white;background:linear-gradient(135deg,#ff5f92,#ff477e);
+    box-shadow:0 9px 0 #d93669,0 15px 24px rgba(255,71,126,.28);
+    cursor:pointer;transition:.08s transform,.08s box-shadow;
+  }
+  .mainbtn:active{transform:translateY(5px);box-shadow:0 4px 0 #d93669,0 8px 15px rgba(255,71,126,.22)}
+  .controls{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:18px}
+  .rangebox{background:white;border:1px solid var(--line);padding:10px 14px;border-radius:14px;font-size:14px}
+  input[type=range]{vertical-align:middle;accent-color:var(--pink)}
+  .ghost{
+    border:1px solid var(--line);background:white;color:var(--ink);font-weight:800;
+    padding:11px 14px;border-radius:14px;cursor:pointer;
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 8px 22px rgba(40,72,120,.06)}
+  .panel h2{font-size:19px;margin:0 0 5px;display:flex;align-items:center;gap:8px}
+  .panel p{font-size:12px;color:var(--muted);margin:0 0 14px}
+  .n{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;color:#fff;font-size:16px}
+  .p1 .n{background:var(--blue)} .p2 .n{background:var(--green)} .p3 .n{background:var(--orange)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{
+    border:1px solid #d7e0ed;background:#fff;color:#294262;
+    border-radius:999px;padding:8px 11px;font-weight:800;font-size:14px;cursor:pointer;
+    user-select:none;transition:.15s;
+  }
+  .chip:hover{transform:translateY(-1px)}
+  .chip.active{color:#fff;border-color:transparent}
+  .p1 .chip.active{background:var(--blue)}
+  .p2 .chip.active{background:var(--green)}
+  .p3 .chip.active{background:var(--orange)}
+  .hint{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6}
+  .examples{
+    margin-top:20px;background:#fff7fb;border:1px solid #f6d6e3;border-radius:22px;padding:18px;
+  }
+  .examples h3{margin:0 0 10px;font-size:16px}
+  #history{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .history{
+    background:white;border:1px solid #eadde4;border-radius:14px;padding:12px 14px;
+    font-weight:800;min-height:54px;display:flex;align-items:center;
+  }
+  footer{text-align:center;color:#7d8796;font-size:12px;margin-top:18px;line-height:1.7}
+  .badge{
+    display:inline-block;background:#fff3aa;border:1px solid #efd55a;color:#735b00;
+    padding:3px 8px;border-radius:999px;font-weight:800
+  }
+  @media(max-width:900px){
+    .chick{position:static;margin-top:18px;justify-content:flex-start}
+    .grid{grid-template-columns:1fr}
+    #history{grid-template-columns:1fr}
+  }
+  @media(max-width:620px){
+    .wrap{padding:14px 12px 32px}
+    .hero{padding:22px 16px}
+    .result{grid-template-columns:1fr}
+    .copy{width:100%}
+    .mainbtn{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">GYŌSEI JIGYŌMEI GENERATOR</div>
+    <h1>行政事業名<br>ジェネレーター</h1>
+    <p class="sub">それっぽい単語を組み合わせて、何をするのか一瞬では分からない、妙に行政らしい名称を生成します。</p>
+
+    <div class="chick">
+      <div class="bubble" id="bubble">名称が長いほど、なんとなく立派に見える気がします。</div>
+      <div class="chick-face">🐣</div>
+    </div>
+
+    <div class="result" aria-live="polite">
+      <div>
+        <small>生成結果</small>
+        <div id="name">持続可能な地域共生推進プラットフォーム</div>
+      </div>
+      <button class="copy" id="copyBtn">📋 コピー</button>
+    </div>
+
+    <button class="mainbtn" id="generate">🔀 ランダム生成</button>
+
+    <div class="controls">
+      <label class="rangebox">行政濃度：
+        <input id="density" type="range" min="1" max="5" value="3">
+        <strong id="densityText">ふつう</strong>
+      </label>
+      <button class="ghost" id="maxBtn">🏛️ それっぽさMAX</button>
+      <button class="ghost" id="clearBtn">選択解除</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel p1">
+      <h2><span class="n">1</span> 前半カード</h2>
+      <p>方向性・時代感を添える</p>
+      <div class="chips" id="prefix"></div>
+      <div class="hint">クリックすると固定できます。未選択ならランダム。</div>
+    </div>
+    <div class="panel p2">
+      <h2><span class="n">2</span> 中盤カード</h2>
+      <p>対象・手法・関係性を盛る</p>
+      <div class="chips" id="middle"></div>
+      <div class="hint">行政濃度が高いほど、ここが増えがちです。</div>
+    </div>
+    <div class="panel p3">
+      <h2><span class="n">3</span> 終盤カード</h2>
+      <p>最後に制度っぽい器を付ける</p>
+      <div class="chips" id="suffix"></div>
+      <div class="hint">「プラットフォーム」は非常に強いカードです。</div>
+    </div>
+  </section>
+
+  <section class="examples">
+    <h3>最近の生成 <span class="badge">※たぶん架空</span></h3>
+    <div id="history"></div>
+  </section>
+
+  <footer>
+    ※ジョークアプリです。実在の制度・事業・計画等とは関係ありません。<br>
+    偶然、実在する名称または非常によく似た名称が生成される可能性があります。
+  </footer>
+</div>
+
+<script>
+const data = {
+  prefix:["未来","持続可能な","次世代","デジタル","スマート","官民","新たな","安心・安全な","魅力ある","広域"],
+  middle:["地域","地方","総合","包括","連携","協働","共生","交流","循環","創生","活性化","再生","推進","支援","強化","人材育成","基盤整備"],
+  suffix:["事業","計画","構想","戦略","ビジョン","プロジェクト","体制","システム","ネットワーク","プラットフォーム","拠点","協議会","推進会議"]
+};
+const flavor = [
+  "名前だけで予算要求書が1ページ増えそうです。",
+  "『総合』『連携』『推進』は、だいたい仲良しです。",
+  "プラットフォームを付けると急に令和感が出ます。",
+  "※名称から事業内容を当てるゲームではありません。",
+  "『包括』を入れると守備範囲が広そうに見えます。",
+  "困ったときは『地域』を足してみましょう。",
+  "名称が長いほど、なんとなく立派に見える気がします。"
+];
+
+const $ = s => document.querySelector(s);
+const selected = {prefix:null,middle:new Set(),suffix:null};
+
+function renderChips(type){
+  const root = $("#"+type);
+  root.innerHTML="";
+  data[type].forEach(word=>{
+    const b=document.createElement("button");
+    b.className="chip";
+    b.textContent=word;
+    b.onclick=()=>{
+      if(type==="middle"){
+        if(selected.middle.has(word)){ selected.middle.delete(word); b.classList.remove("active"); }
+        else { selected.middle.add(word); b.classList.add("active"); }
+      }else{
+        [...root.children].forEach(x=>x.classList.remove("active"));
+        if(selected[type]===word){ selected[type]=null; }
+        else { selected[type]=word; b.classList.add("active"); }
+      }
+    };
+    root.appendChild(b);
+  });
+}
+["prefix","middle","suffix"].forEach(renderChips);
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+function shuffled(arr){ return [...arr].sort(()=>Math.random()-.5) }
+
+function generate(forceMax=false){
+  const density = forceMax ? 5 : +$("#density").value;
+  const pre = selected.prefix || pick(data.prefix);
+  const suf = selected.suffix || pick(data.suffix);
+
+  let mids=[...selected.middle];
+  const target = forceMax ? 4 : ({1:1,2:1,3:2,4:3,5:4}[density]);
+  const candidates=shuffled(data.middle.filter(x=>!mids.includes(x)));
+
+  while(mids.length<target && candidates.length) mids.push(candidates.pop());
+
+  // avoid awkwardly ending with "推進推進..."
+  const compact=[];
+  mids.forEach(w=>{
+    if(!(compact.at(-1)==="推進" && w==="推進")) compact.push(w);
+  });
+
+  const name = pre + compact.join("") + suf;
+  $("#name").textContent=name;
+  $("#bubble").textContent=pick(flavor);
+  addHistory(name);
+}
+function addHistory(name){
+  const hist=$("#history");
+  const d=document.createElement("div");
+  d.className="history";
+  d.textContent=name;
+  hist.prepend(d);
+  while(hist.children.length>3) hist.lastChild.remove();
+}
+$("#generate").onclick=()=>generate(false);
+$("#maxBtn").onclick=()=>generate(true);
+$("#copyBtn").onclick=async()=>{
+  try{
+    await navigator.clipboard.writeText($("#name").textContent);
+    $("#copyBtn").textContent="✅ コピーしました";
+    setTimeout(()=>$("#copyBtn").textContent="📋 コピー",1200);
+  }catch{
+    const ta=document.createElement("textarea");
+    ta.value=$("#name").textContent; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }
+};
+$("#clearBtn").onclick=()=>{
+  selected.prefix=null; selected.suffix=null; selected.middle.clear();
+  document.querySelectorAll(".chip.active").forEach(x=>x.classList.remove("active"));
+};
+$("#density").oninput=e=>{
+  const labels={1:"うすめ",2:"控えめ",3:"ふつう",4:"濃いめ",5:"霞が関"};
+  $("#densityText").textContent=labels[e.target.value];
+};
+
+["官民連携地域活性化計画","次世代総合支援システム","持続可能な地域共生推進プラットフォーム"]
+  .forEach(addHistory);
+</script>
+</body>
+</html>
